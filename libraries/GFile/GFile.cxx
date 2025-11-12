@@ -63,6 +63,9 @@ void GFile::ReadSome() {
 
 
 
+
+
+
 void GFile::Read() {
   auto start     = std::chrono::steady_clock::now();
   auto lastPrint = std::chrono::steady_clock::now();
@@ -90,7 +93,23 @@ void GFile::Read() {
   printf("done!\n");
 }
 
+bool GFile::Iteration() { 
+  if(fOffset>=fSize) return false;
+  
+ 
 
+
+  GEBHeader *header = (GEBHeader*)(fData+fOffset);
+  
+  static uint64_t seq=0;
+  this->emplace(Rec{static_cast<uint64_t>(header->timestamp),
+                    static_cast<uint32_t>(header->type),
+                    static_cast<uint32_t>(header->size),
+                    static_cast<uint64_t>(fOffset),
+                    seq++});
+  fOffset += sizeof(GEBHeader) + header->size;
+  return true; 
+} 
 
 
 

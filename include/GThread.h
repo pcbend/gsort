@@ -97,7 +97,7 @@ class GThread {
 
   private:
     //virtual void Initialize() = 0;
-    virtual void Iteration() = 0;
+   virtual bool Iteration() = 0;
     //virtual void Finalize()   = 0;
     
     mutable std::mutex fMutex;
@@ -108,8 +108,6 @@ class GThread {
     std::atomic_bool fPaused;
 
     std::priority_queue<T,std::vector<T> > fQueue;
-
-  ClassDef(GThread,0)
 };
 
 #endif

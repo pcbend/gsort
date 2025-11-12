@@ -12,7 +12,7 @@ struct Rec {
   uint32_t type;
   uint32_t size;
   uint64_t offset;
-  uint32_t seq;
+  uint64_t seq;
   bool operator<(const Rec& other) const { 
     if(timestamp != other.timestamp) 
       return timestamp>other.timestamp; 
@@ -33,6 +33,9 @@ class GFile : public GThread<Rec> {
     kGEB,
     kEVT 
   };
+
+  protected:
+    bool Iteration() override; 
 
 
   private:
