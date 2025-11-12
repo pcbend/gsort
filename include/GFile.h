@@ -4,11 +4,26 @@
 #include<string>
 
 #include<TObject.h>
+#include<GThread.h>
 
-class GFile : public TObject {
+
+struct Rec {
+  uint64_t timestamp;
+  uint32_t type;
+  uint32_t size;
+  uint64_t offset;
+  uint32_t seq;
+  bool operator<(const Rec& other) const { 
+    if(timestamp != other.timestamp) 
+      return timestamp<other.timestamp; 
+    return seq<other.seq; 
+  }
+};
+
+class GFile : public GThread<Rec> {
   public:
     GFile(std::string inFile);
-    ~GFile();
+    virtual ~GFile();
 
 
   void ReadSome();

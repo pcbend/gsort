@@ -16,7 +16,7 @@
 #include <globals.h>
 
 
-GFile::GFile(std::string inFile) : TObject(),fOffset(0),fMapFile(0),fMapOpened(false),fData(0) {
+GFile::GFile(std::string inFile) : fOffset(0),fMapFile(0),fMapOpened(false),fData(0) {
   fFd = open(inFile.c_str(), O_RDONLY);
   if(fFd==-1) return;
   struct stat sb;
@@ -60,19 +60,6 @@ void GFile::ReadSome() {
   std::cout << *header << std::endl;
 
 }
-
-struct Rec {
-  uint64_t timestamp;
-  uint32_t type;
-  uint32_t size;
-  uint64_t offset;
-  uint32_t set;
-  bool operator<(const Rec& other) const { 
-    if(timestamp != other.timestamp) 
-      return timestamp<other.timestamp; 
-    return seq<other.seq; 
-  }
-};
 
 
 
