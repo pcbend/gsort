@@ -2,10 +2,10 @@
 #define __GTYPES_H__
 
 #include<TObject.h>
-
+#include<Rtypes.h>
 
 class Gint;
-extern Gint* gInt;
+R__EXTERN Gint *gInt;
 
 enum class EConnectionType {
   kFILE,
