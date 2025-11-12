@@ -3,6 +3,10 @@
 
 #include<TObject.h>
 
+
+class Gint;
+extern Gint* gInt;
+
 enum class EConnectionType {
   kFILE,
   kTHREAD,

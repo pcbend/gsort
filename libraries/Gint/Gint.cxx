@@ -26,8 +26,10 @@ Gint::Gint(int argc, char **argv) : TRint("gint",0,0,0,0,true,false),
 }
 
 Gint *Gint::Get(int argc,char **argv) {
-  if(!fGint)
+  if(!fGint) {
     fGint = new Gint(argc,argv);
+    gInt = fGint;
+  }
   return fGint;
 }
 
