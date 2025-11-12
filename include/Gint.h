@@ -24,6 +24,9 @@ class Gint : public TRint {
 
     void Terminate(int status) override;
 
+    void Sort(std::string fname);
+
+
   public:
     void      LoadOptions(int argc, char **argv);
     EFileType DetermineFileType(const std::string& filename) const;

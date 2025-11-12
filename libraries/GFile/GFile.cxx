@@ -61,11 +61,6 @@ void GFile::ReadSome() {
 
 }
 
-
-
-
-
-
 void GFile::Read() {
   auto start     = std::chrono::steady_clock::now();
   auto lastPrint = std::chrono::steady_clock::now();
@@ -74,12 +69,7 @@ void GFile::Read() {
 
   GEBHeader *header;
   while(fOffset < fSize) {
-    header = (GEBHeader*)(fData+fOffset);
-    fOffset += sizeof(GEBHeader);
-    //now it points to the payload...
-    fOffset  += header->size;
-
-
+    Iteration();
 
     if(std::chrono::steady_clock::now()-lastPrint>interval) {
       lastPrint = std::chrono::steady_clock::now();
@@ -95,11 +85,8 @@ void GFile::Read() {
 
 bool GFile::Iteration() { 
   if(fOffset>=fSize) return false;
-  
- 
 
-
-  GEBHeader *header = (GEBHeader*)(fData+fOffset);
+  GEBHeader *header = (GEBHeader*)(fData+fOffset);  //most recent...
   
   static uint64_t seq=0;
   this->emplace(Rec{static_cast<uint64_t>(header->timestamp),
@@ -108,6 +95,20 @@ bool GFile::Iteration() {
                     static_cast<uint64_t>(fOffset),
                     seq++});
   fOffset += sizeof(GEBHeader) + header->size;
+
+ Rec top;
+ for(;;) {
+   if(!peek(top)) break;
+   uint64_t oldest = top.timestamp;
+   if(header->timestamp<oldest) break;
+   if(header->timestamp-oldest < 3'000'000'000'000ull) break; //30'000s @ 10ns
+   printf("gfile iteration is blocking!\n"); fflush(stdout);
+   printf("\t header: %lld \n",header->timestamp);
+   printf("\t oldest: %lld \n",oldest); 
+
+   std::this_thread::sleep_for(std::chrono::milliseconds(100));  
+  }
+
   return true; 
 } 
 

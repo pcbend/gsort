@@ -2,9 +2,11 @@
 #define __GFILE_H__
 
 #include<string>
+#include<limits>
 
 #include<TObject.h>
 #include<GThread.h>
+
 
 
 struct Rec {
@@ -26,17 +28,16 @@ class GFile : public GThread<Rec> {
     virtual ~GFile();
 
 
-  void ReadSome();
-  void Read();
+    void ReadSome();
+    void Read();
 
-  enum EFileType {
-    kGEB,
-    kEVT 
-  };
+    enum EFileType {
+      kGEB,
+      kEVT 
+    };
 
   protected:
     bool Iteration() override; 
-
 
   private:
     //bookkeeping
@@ -50,6 +51,8 @@ class GFile : public GThread<Rec> {
     void*  fMapFile;
     bool   fMapOpened;
     char*  fData;
+
+    //Queue information
 
   ClassDef(GFile,0)
 };

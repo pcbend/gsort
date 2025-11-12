@@ -70,15 +70,22 @@ class GThread {
       return true;
     }
 
-    bool popReady(T& out, const std::function<bool(const T&)>& ready) {
+    bool pop(T& out) {
       std::unique_lock<std::mutex> lk(fMutex);
       fCV.wait(lk, [&]{
-        return !fRunning || (!fPaused && !fQueue.empty() && ready(fQueue.top()));
+        return !fRunning || (!fPaused && !fQueue.empty());
       });
       if (!fRunning && fQueue.empty()) return false;
-      if (fPaused || fQueue.empty() || !ready(fQueue.top())) return false;
+      if (fPaused || fQueue.empty()) return false;
       out = std::move(const_cast<T&>(fQueue.top()));
       fQueue.pop();
+      return true;
+    }
+
+    bool peek(T& out) {
+      std::lock_guard<std::mutex> lk(fMutex);
+      if(fQueue.empty()) return false;
+      out = const_cast<T&>(fQueue.top());
       return true;
     }
 

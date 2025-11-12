@@ -9,6 +9,7 @@
 #include <Gtypes.h>
 #include <argParser.h>
 //#include <Histomatic.h>
+#include <GFile.h>
 
 #include <globals.h>
 
@@ -258,6 +259,21 @@ long Gint::ProcessLine(const char* line, bool sync, int* error) {
   }
   return retval;
 }
+
+
+void Gint::Sort(std::string fname) {
+  GFile infile(fname);
+  std::thread fileThread(&GFile::Read, &infile);
+
+
+  fileThread.detach();
+}
+
+
+
+
+
+
 
 
 
