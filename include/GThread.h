@@ -6,6 +6,8 @@
 #include <atomic>
 #include <condition_variable>
 #include <thread>
+#include <functional>
+
 
 #include <queue>
 
@@ -55,7 +57,7 @@ class GThread {
     void emplace(Args&&... args) {
       {
         std::lock_guard<std::mutex> lk(fMutex);
-        fQueue.emplace(std::forward<args>(args)...);
+        fQueue.emplace(std::forward<Args>(args)...);
       }
       fCV.notify_one();
     }
@@ -71,11 +73,11 @@ class GThread {
     bool popReady(T& out, const std::function<bool(const T&)>& ready) {
       std::unique_lock<std::mutex> lk(fMutex);
       fCV.wait(lk, [&]{
-        return !fRunning || (!fPaused && fQueue.empty() && ready(fQueue.top()));
+        return !fRunning || (!fPaused && !fQueue.empty() && ready(fQueue.top()));
       });
       if (!fRunning && fQueue.empty()) return false;
       if (fPaused || fQueue.empty() || !ready(fQueue.top())) return false;
-      out = std::move(const_cast<T&>(fQueue.pop()));
+      out = std::move(const_cast<T&>(fQueue.top()));
       fQueue.pop();
       return true;
     }

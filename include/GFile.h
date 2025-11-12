@@ -15,7 +15,7 @@ struct Rec {
   uint32_t seq;
   bool operator<(const Rec& other) const { 
     if(timestamp != other.timestamp) 
-      return timestamp<other.timestamp; 
+      return timestamp>other.timestamp; 
     return seq<other.seq; 
   }
 };
