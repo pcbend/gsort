@@ -6,4 +6,7 @@
 
 #pragma link C++ global gInt;
 
+#pragma link C++ function hello;
+#pragma link C++ function threadStatus;
+
 #endif

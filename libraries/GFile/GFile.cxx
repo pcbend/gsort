@@ -26,6 +26,8 @@ GFile::GFile(std::string inFile) : fOffset(0),fMapFile(0),fMapOpened(false),fDat
                         //%lld
   printf("Opened file %s [%.02f GB]\n",inFile.c_str(),fSize/1024./1024./1024.);  
   
+  GThread<Rec>::Register();  
+  
   fMapFile = mmap(NULL,fSize,PROT_READ,MAP_PRIVATE,fFd,0);
   if(!(fMapFile == MAP_FAILED)) {
     fMapOpened = true;
@@ -83,6 +85,10 @@ void GFile::Read() {
   printf("done!\n");
 }
 
+void GFile::Sort() { 
+  start();
+}
+
 bool GFile::Iteration() { 
   if(fOffset>=fSize) return false;
 
@@ -95,9 +101,11 @@ bool GFile::Iteration() {
                     static_cast<uint64_t>(fOffset),
                     seq++});
   fOffset += sizeof(GEBHeader) + header->size;
+  
+  return true; 
 
- Rec top;
- for(;;) {
+  Rec top;
+  for(;;) {
    if(!peek(top)) break;
    uint64_t oldest = top.timestamp;
    if(header->timestamp<oldest) break;
@@ -111,6 +119,18 @@ bool GFile::Iteration() {
 
   return true; 
 } 
+
+
+
+GEventBuilder::GEventBuilder(GFile *ptr) { } 
+
+GEventBuilder::~GEventBuilder() { } 
+
+bool GEventBuilder::Iteration() {
+
+  return true;
+}
+
 
 
 

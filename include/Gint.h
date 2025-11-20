@@ -29,7 +29,9 @@ class Gint : public TRint {
 
   public:
     void      LoadOptions(int argc, char **argv);
+#if !defined(__ROOTCLING__) && !defined(__CINT__)
     EFileType DetermineFileType(const std::string& filename) const;
+#endif
     //bool      FileAutoDetect(const std::string& filename);
     TFile*    OpenRootFile(const std::string& filename, Option_t *opt="");
 

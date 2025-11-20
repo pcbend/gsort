@@ -27,9 +27,13 @@ class GFile : public GThread<Rec> {
     GFile(std::string inFile);
     virtual ~GFile();
 
+    // DELETE these to prevent accidental memory corruption
+    GFile(const GFile&) = delete;
+    GFile& operator=(const GFile&) = delete;
 
     void ReadSome();
     void Read();
+    void Sort(); 
 
     enum EFileType {
       kGEB,
@@ -56,6 +60,19 @@ class GFile : public GThread<Rec> {
 
   ClassDef(GFile,0)
 };
+
+class GEventBuilder : public GThread<std::vector<Rec> > {
+  public:
+    GEventBuilder(GFile *ptr);
+    virtual ~GEventBuilder(); 
+
+  protected:
+    bool Iteration() override; 
+
+
+  ClassDef(GEventBuilder,0) 
+};
+
 
 #endif
 

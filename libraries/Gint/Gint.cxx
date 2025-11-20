@@ -14,6 +14,7 @@
 #include <globals.h>
 
 Gint *Gint::fGint = 0;
+Gint * gInt = 0;
 
 //Gint::Gint(int argc, char **argv) : TRint("gint",&argc,argv,0,0,true,false) {
 Gint::Gint(int argc, char **argv) : TRint("gint",0,0,0,0,true,false), 
@@ -38,6 +39,7 @@ Gint::~Gint() { }
 void Gint::Terminate(int status) {
   printf("\nbye,bye\n\n");
   SetPrompt("");
+  GThreadManager::StopAll();
   TRint::Terminate(status);
 
 }

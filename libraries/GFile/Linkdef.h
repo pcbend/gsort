@@ -4,4 +4,6 @@
 
 #pragma link C++ class GFile+;
 
+#pragma link C++ class GEventBuilder+;
+
 #endif
