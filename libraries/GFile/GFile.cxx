@@ -26,7 +26,7 @@ GFile::GFile(std::string inFile) : fOffset(0),fMapFile(0),fMapOpened(false),fDat
                         //%lld
   printf("Opened file %s [%.02f GB]\n",inFile.c_str(),fSize/1024./1024./1024.);  
   
-  GThread<Rec>::Register();  
+  //GThread<Rec>::Register();  
   
   fMapFile = mmap(NULL,fSize,PROT_READ,MAP_PRIVATE,fFd,0);
   if(!(fMapFile == MAP_FAILED)) {
@@ -90,8 +90,14 @@ void GFile::Sort() {
 }
 
 bool GFile::Iteration() { 
-  if(fOffset>=fSize) return false;
-
+  constexpr size_t kHighWater = 2'000'000; // tune
+  while (this->size() > kHighWater && this->IsRunning() && !this->IsPaused()) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  }
+  if(fOffset>=fSize) {
+    fDoneReading = true;
+    return false;
+  }
   GEBHeader *header = (GEBHeader*)(fData+fOffset);  //most recent...
   
   static uint64_t seq=0;
@@ -100,37 +106,34 @@ bool GFile::Iteration() {
                     static_cast<uint32_t>(header->size),
                     static_cast<uint64_t>(fOffset),
                     seq++});
-  fOffset += sizeof(GEBHeader) + header->size;
+ if(header->timestamp>fLastTimestamp)
+   fLastTimestamp = header->timestamp;
+
+ fOffset += sizeof(GEBHeader) + header->size;
   
-  return true; 
-
-  Rec top;
-  for(;;) {
-   if(!peek(top)) break;
-   uint64_t oldest = top.timestamp;
-   if(header->timestamp<oldest) break;
-   if(header->timestamp-oldest < 3'000'000'000'000ull) break; //30'000s @ 10ns
-   printf("gfile iteration is blocking!\n"); fflush(stdout);
-   printf("\t header: %lld \n",header->timestamp);
-   printf("\t oldest: %lld \n",oldest); 
-
-   std::this_thread::sleep_for(std::chrono::milliseconds(100));  
-  }
-
   return true; 
 } 
 
-
-
-GEventBuilder::GEventBuilder(GFile *ptr) { } 
-
-GEventBuilder::~GEventBuilder() { } 
-
-bool GEventBuilder::Iteration() {
-
-  return true;
+bool GFile::pop(Rec &out) {
+  constexpr uint64_t kWindowTicks = 5ULL * 100'000'000ULL; // 5 seconds @ 10ns
+  Rec top;
+  while(1) { 
+    if(!IsRunning() && empty()) return false;
+    if(!peek(top)) return GThread<Rec>::pop(out);
+    uint64_t oldest = top.timestamp;
+    if (fDoneReading || (fLastTimestamp - oldest) >= kWindowTicks) break;
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));    
+  }
+  return GThread<Rec>::pop(out);
 }
 
-
-
+void GFile::print() { 
+  std::string state = "STOPPED";
+  if (IsRunning()) state = IsPaused() ? "PAUSED" : "RUNNING";
+  std::cout << "[GFile] "
+            << "| State: " << state
+            << " | Offset: " << fOffset/1024./1024. << "/" << fSize/1024./1024. << " MB"
+            << " | Queue Size: " << size()
+            << "\n";
+}
 

@@ -10,8 +10,18 @@
 #include <argParser.h>
 //#include <Histomatic.h>
 #include <GFile.h>
+#include <GEventBuilder.h>
+
+#include <GStatusThread.h>
+#include <GSinkThread.h>
+
 
 #include <globals.h>
+
+
+std::vector<std::string> GintOptions::fGEBFiles;
+
+
 
 Gint *Gint::fGint = 0;
 Gint * gInt = 0;
@@ -22,6 +32,7 @@ Gint::Gint(int argc, char **argv) : TRint("gint",0,0,0,0,true,false),
 
   LoadOptions(argc,argv);
   LoadStyle();
+  ApplyOptions();
   SetPrompt("gsort [%d] ");
 
 }
@@ -73,7 +84,6 @@ void Gint::LoadStyle() {
 
 void Gint::LoadOptions(int argc, char **argv) {
   //check the grutrc file for set preset optrions....
-  
 
   argParser parser;
 
@@ -136,6 +146,9 @@ void Gint::LoadOptions(int argc, char **argv) {
         break;
       case EFileType::kCUTS:
         break;
+      case EFileType::kGEB:
+        GintOptions::AddGEBFile(file);
+        break;
       default:
         printf("\tDiscarding unknown file: %s\n",file.c_str());
       break;
@@ -146,6 +159,14 @@ void Gint::LoadOptions(int argc, char **argv) {
 
 }
 
+void Gint::ApplyOptions()  {
+  if(GintOptions::GetGEBFiles().size()>0)
+    Sort(GintOptions::GetGEBFiles().at(0));
+
+
+}
+
+
 EFileType Gint::DetermineFileType(const std::string& filename) const {
   size_t dot = filename.find_last_of('.');
   std::string ext = filename.substr(dot+1);
@@ -155,7 +176,9 @@ EFileType Gint::DetermineFileType(const std::string& filename) const {
     ext = remaining.substr(remaining.find_last_of('.')+1);
   }
   
-  if(ext == "cal") {
+  if(ext == "dat") {
+    return EFileType::kGEB;
+  } if(ext == "cal") {
     return EFileType::kCALIBRATION;
   } else if(ext == "root") {
     return EFileType::kROOTFILE;
@@ -267,10 +290,25 @@ long Gint::ProcessLine(const char* line, bool sync, int* error) {
 
 void Gint::Sort(std::string fname) {
   GFile infile(fname);
-  std::thread fileThread(&GFile::Read, &infile);
+  //std::thread fileThread(&GFile::Read, &infile);
+  //fileThread.detach();
+  infile.start();
+  GEventBuilder<Rec> eventbuilder(infile);
+  eventbuilder.start();
+
+  GSinkThread<std::vector<Rec> > sink(eventbuilder);
+  sink.start();
 
 
-  fileThread.detach();
+  GStatusThread status;
+  status.start();
+  
+  //infile.join();
+  //eventbuilder.join();
+  //sink.join();
+
+  status.join();
+
 }
 
 

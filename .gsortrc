@@ -4,7 +4,7 @@ Unix.*.Root.MacroPath: .:$(GRUTSYS)/util:$(ROOTSYS)/macros
 
 #files to load at log in:
 #Rint.Logon: $(GSYS)/.gint_logon
-Rint.History $(GSYS)/.gint_history
+Rint.History $(GSORTSYS)/.gint_history
 Rint.HistSize: 1000000
 
 Rint.PromptColor:  bold blue
@@ -31,6 +31,6 @@ Root.Fitter: Fumili2
 
 #Gui.Backend: qt
 #Gui.Factory: qt
-Gui.IconPath:      $(GSYS)/icons:$(ROOTSYS)/icons
+Gui.IconPath:      $(GSORTSYS)/icons:$(ROOTSYS)/icons
 #$(ROOTSYS)/etc/root.mimes
-Gui.MimeTypeFile:  $(GSYS)/.gint.mimes
+Gui.MimeTypeFile:  $(GSORTSYS)/.gint.mimes

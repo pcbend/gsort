@@ -20,6 +20,9 @@ struct Rec {
       return timestamp>other.timestamp; 
     return seq<other.seq; 
   }
+  int64_t operator-(const Rec& other) const {
+    return static_cast<int64_t>(timestamp) - static_cast<int64_t>(other.timestamp);
+  }
 };
 
 class GFile : public GThread<Rec> {
@@ -35,6 +38,10 @@ class GFile : public GThread<Rec> {
     void Read();
     void Sort(); 
 
+    bool pop(Rec &rec) override;
+
+    void print() override;
+
     enum EFileType {
       kGEB,
       kEVT 
@@ -45,6 +52,9 @@ class GFile : public GThread<Rec> {
 
   private:
     //bookkeeping
+    bool fDoneReading{false};
+    uint64_t fLastTimestamp{0};
+    
     void SetFileType(std::string&);
     EFileType fFileType;
     
@@ -55,23 +65,11 @@ class GFile : public GThread<Rec> {
     void*  fMapFile;
     bool   fMapOpened;
     char*  fData;
-
     //Queue information
 
   ClassDef(GFile,0)
 };
 
-class GEventBuilder : public GThread<std::vector<Rec> > {
-  public:
-    GEventBuilder(GFile *ptr);
-    virtual ~GEventBuilder(); 
-
-  protected:
-    bool Iteration() override; 
-
-
-  ClassDef(GEventBuilder,0) 
-};
 
 
 #endif

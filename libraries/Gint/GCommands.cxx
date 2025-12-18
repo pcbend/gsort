@@ -7,5 +7,5 @@
 
 void hello() { printf(" hi! \n"); }
 
-void threadStatus() { GThreadManager::PrintAllStatuses(); }
+//void threadStatus() { GThreadManager::PrintAllStatuses(); }
 

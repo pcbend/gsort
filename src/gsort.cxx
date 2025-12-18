@@ -10,25 +10,25 @@
 //#include<TROOT.h>
 
 void loadEnv() {
-  // Set the GRUTSYS variable based on the executable path.
-  // If GRUTSYS has already been defined, don't overwrite.
-  setenv("GSYS", (programPath()+"/..").c_str(), 0);
+  // Set the GSORTSYS variable based on the executable path.
+  // If GSORTSYS has already been defined, don't overwrite.
+  setenv("GSORTSYS", (programPath()+"/..").c_str(), 0);
 
-  printf("GSYS has been set to: %s\n",getenv("GSYS"));
+  printf("GSORTSYS has been set to: %s\n",getenv("GSORTSYS"));
 
-  // Load $GRUTSYS/.grutrc
-  std::string grut_path = Form("%s/.gintrc",getenv("GSYS"));
-  gEnv->ReadFile(grut_path.c_str(),kEnvChange);
+  // Load $GSORTSYS/.gsortrc
+  std::string gsortrc_path = Form("%s/.gsortrc",getenv("GSORTSYS"));
+  gEnv->ReadFile(gsortrc_path.c_str(),kEnvChange);
 
-  // Load $HOME/.grutrc
-  grut_path = Form("%s/.gintrc",getenv("HOME"));
-  if(fileExists(grut_path.c_str())){
-    gEnv->ReadFile(grut_path.c_str(),kEnvChange);
+  // Load $HOME/.gsortrc
+  gsortrc_path = Form("%s/.gsortrc",getenv("HOME"));
+  if(fileExists(gsortrc_path.c_str())){
+    gEnv->ReadFile(gsortrc_path.c_str(),kEnvChange);
   }
   
-  grut_path = Form("%s/.gintrc",getenv("PWD"));
-  if(fileExists(grut_path.c_str())){
-    gEnv->ReadFile(grut_path.c_str(),kEnvChange);
+  gsortrc_path = Form("%s/.gsortrc",getenv("PWD"));
+  if(fileExists(gsortrc_path.c_str())){
+    gEnv->ReadFile(gsortrc_path.c_str(),kEnvChange);
   }
 }
 

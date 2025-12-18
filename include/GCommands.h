@@ -4,6 +4,6 @@
 
 void hello();
 
-void threadStatus();
+//void threadStatus();
 
 #endif

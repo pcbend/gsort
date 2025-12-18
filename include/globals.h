@@ -39,7 +39,7 @@
 // From http://ascii-table.com/ansi-escape-sequences.php
 #define CURSOR_UP "\033[1A"
 #define CURSOR_DOWN "\033[1B"
-#define CLEAR_LINE "\r\033[K"
+#define CLEAR_LINE "\r\033[2K"
 
 
 #define ALERTTEXT "\033[47m\033[0;31m"

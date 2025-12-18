@@ -11,6 +11,24 @@
 
 class TFile;
 
+#ifndef __CINT__
+class GintOptions {
+  private:
+    GintOptions() = default;
+  public:
+    ~GintOptions() = default;
+
+    static void AddGEBFile(std::string fname)     { fGEBFiles.push_back(fname); }
+    static std::vector<std::string> GetGEBFiles() { return fGEBFiles; }
+
+
+  private:
+    static std::vector<std::string> fGEBFiles;
+};
+#endif
+
+
+
 class Gint : public TRint {
   private:
     Gint(int argc, char **argv);
@@ -29,6 +47,7 @@ class Gint : public TRint {
 
   public:
     void      LoadOptions(int argc, char **argv);
+    void      ApplyOptions(); 
 #if !defined(__ROOTCLING__) && !defined(__CINT__)
     EFileType DetermineFileType(const std::string& filename) const;
 #endif
