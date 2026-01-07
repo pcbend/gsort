@@ -1,13 +1,20 @@
 
 #include<cstdio>
+#include<signal.h>
+
 
 #include<Gint.h>
 #include<utils.h>
+#include<globals.h>
 
 #include<TROOT.h>
 #include<TEnv.h>
 //#include<TStyle.h>
 //#include<TROOT.h>
+
+void SigHandler(int) { 
+  gShutdown.store(true);
+}
 
 void loadEnv() {
   // Set the GSORTSYS variable based on the executable path.
@@ -39,6 +46,9 @@ int main(int argc, char **argv) {
   loadEnv();
   gROOT->ProcessLine(".L include/Gtypes.h"); // for some reason the enums aren't being processed properly by the rootclang
 
+  //signal(SIGINT,SigHandler);
+  signal(SIGTERM,SigHandler);
+  
   Gint::Get(argc,argv)->Run(true);
  
   return 0;

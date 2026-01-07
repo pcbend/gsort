@@ -7,23 +7,7 @@
 #include<TObject.h>
 #include<GThread.h>
 
-
-
-struct Rec {
-  uint64_t timestamp;
-  uint32_t type;
-  uint32_t size;
-  uint64_t offset;
-  uint64_t seq;
-  bool operator<(const Rec& other) const { 
-    if(timestamp != other.timestamp) 
-      return timestamp>other.timestamp; 
-    return seq<other.seq; 
-  }
-  int64_t operator-(const Rec& other) const {
-    return static_cast<int64_t>(timestamp) - static_cast<int64_t>(other.timestamp);
-  }
-};
+#include <Gtypes.h>
 
 class GFile : public GThread<Rec> {
   public:
@@ -42,6 +26,8 @@ class GFile : public GThread<Rec> {
 
     void print() override;
 
+    const FileContext &Context() const { return fCtx; }
+
     enum EFileType {
       kGEB,
       kEVT 
@@ -54,7 +40,8 @@ class GFile : public GThread<Rec> {
     //bookkeeping
     bool fDoneReading{false};
     uint64_t fLastTimestamp{0};
-    
+    FileContext fCtx;
+
     void SetFileType(std::string&);
     EFileType fFileType;
     

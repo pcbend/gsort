@@ -32,6 +32,8 @@ GFile::GFile(std::string inFile) : fOffset(0),fMapFile(0),fMapOpened(false),fDat
   if(!(fMapFile == MAP_FAILED)) {
     fMapOpened = true;
     fData = static_cast<char*>(fMapFile);//
+    fCtx.base = fData;
+    fCtx.size = fSize;
   }
 
   SetFileType(inFile);
@@ -90,6 +92,11 @@ void GFile::Sort() {
 }
 
 bool GFile::Iteration() { 
+  if(gShutdown) { 
+    fDoneReading=true;
+    return false;
+  }
+
   constexpr size_t kHighWater = 2'000'000; // tune
   while (this->size() > kHighWater && this->IsRunning() && !this->IsPaused()) {
     std::this_thread::sleep_for(std::chrono::milliseconds(1));

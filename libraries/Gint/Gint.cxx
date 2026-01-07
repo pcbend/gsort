@@ -4,6 +4,7 @@
 #include <TROOT.h>
 #include <TStyle.h>
 #include <TEnv.h>
+#include <TSystem.h>
 
 #include <Gint.h>
 #include <Gtypes.h>
@@ -14,14 +15,15 @@
 
 #include <GStatusThread.h>
 #include <GSinkThread.h>
+#include <GPhysicsThread.h>
 
+#include <GDetector.h>
 
 #include <globals.h>
 
 
+
 std::vector<std::string> GintOptions::fGEBFiles;
-
-
 
 Gint *Gint::fGint = 0;
 Gint * gInt = 0;
@@ -29,6 +31,12 @@ Gint * gInt = 0;
 //Gint::Gint(int argc, char **argv) : TRint("gint",&argc,argv,0,0,true,false) {
 Gint::Gint(int argc, char **argv) : TRint("gint",0,0,0,0,true,false), 
   fRootFilesOpened(0), fTabLock(false), fMainThreadId(std::this_thread::get_id())  {
+
+  static GSigHandler *sigHandler = nullptr;
+  if(!sigHandler) {
+    sigHandler = new GSigHandler();
+    gSystem->AddSignalHandler(sigHandler);
+  }
 
   LoadOptions(argc,argv);
   LoadStyle();
@@ -296,9 +304,11 @@ void Gint::Sort(std::string fname) {
   GEventBuilder<Rec> eventbuilder(infile);
   eventbuilder.start();
 
-  GSinkThread<std::vector<Rec> > sink(eventbuilder);
-  sink.start();
+  GPhysicsThread<Rec> unpacker(eventbuilder,infile.Context());
+  unpacker.start();
 
+  GSinkThread<GDetector> sink(unpacker);
+  sink.start();
 
   GStatusThread status;
   status.start();

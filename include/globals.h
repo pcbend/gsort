@@ -3,6 +3,10 @@
 
 #include <string>
 
+#include <atomic>
+
+extern std::atomic<bool> gShutdown;
+
 
 #ifndef __CINT__
 

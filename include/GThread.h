@@ -16,6 +16,7 @@
 #include <queue>
 
 #include <Gtypes.h>
+#include <globals.h>
 
 class GThreadBase {
   public:
@@ -33,7 +34,6 @@ class GThreadBase {
     virtual bool HasData() const =0;
     virtual bool IsIdle() const =0;
 };
-
 
 class GThreadManager {
  public:
@@ -67,7 +67,7 @@ class GThreadManager {
 
     static int PrintAll() {
       std::lock_guard<std::mutex> lock(fManagerMutex);
-      int lines = 2;
+      int lines = 3;
       std::cout << "=== Global Thread Status Report ===" << std::endl;
       if (fThreads.empty()) {
           std::cout << "No active threads.\n";
@@ -77,6 +77,7 @@ class GThreadManager {
           t->print();   // virtual call
           lines++;
       }
+      printf("gShutdown: %i\n",gShutdown.load());
       std::cout << "===================================" << std::endl;
       return lines;
     }

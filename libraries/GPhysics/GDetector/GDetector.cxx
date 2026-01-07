@@ -1,4 +1,8 @@
 #include <GDetector.h>
+#include <GBanks.h>
+
+
+#include <vector>
 
 GDetector::GDetector() {
   //Class()->CanIgnoreTObjectStreamer();
@@ -37,10 +41,68 @@ int GDetector::Compare(const TObject& obj) const {
   }
 }
 
+int GDetector::Unpack(std::vector<Rec> &event,const FileContext &ctx) { 
+  for(auto r : event) {
+    const char *recStart = ctx.base + r.offset;
+    auto* header = reinterpret_cast<const GEBHeader*>(recStart);
+    const char* payload = recStart + sizeof(GEBHeader);
+    //std::cout << *header << std::endl;
+    if(header->type==1)  {
+      auto *hit = reinterpret_cast<const GEBBankType1*>(payload);
+      //if(hit->pad) 
+      //  std::cout << *hit << std::endl;
+    } else if (header->type==8) {
+      r.print(ctx);
+
+      int size=0;
+      const char *ptr = payload;
+      const char *payloadEnd = payload + header->size;
+  
+      while(ptr + 4*sizeof(UShort_t) <= payloadEnd) {
+        auto const *words = reinterpret_cast<const UShort_t*>(ptr);
+
+        if(words[0] != 0xaaaa || words[1] != 0xaaaa) { break; }
+        GEBMode3Head head3{};
+        head3.a1       = words[0];
+        head3.a2       = words[1];
+        head3.lengthGA = words[2];
+        head3.board_id = words[3];
+
+        head3 = SwapMode3Head(head3);
+
+        const int packetBytes = head3.GetLength() - 2*sizeof(UShort_t);
+
+        if (packetBytes <= 0 || ptr + packetBytes > payloadEnd) { break; }
+        
+        constexpr int headerWords = 4;               // aaaa aaaa lengthGA board_id
+        constexpr int headerBytes = headerWords * sizeof(UShort_t);
+        const char *dataPtr    = ptr + headerBytes;
+        const size_t dataBytes = packetBytes - headerBytes;
+
+        const auto *rawSamples = reinterpret_cast<const GEBMode3Data*>(dataPtr);
+        const size_t nSamples  = dataBytes / sizeof(GEBMode3Data);
+        for (size_t i = 0; i < nSamples; ++i) {
+          GEBMode3Data sample = rawSamples[i];  // copy so we can byte-swap
+          SwapMode3Data(sample);
+
+          std::cout << head3 << sample << "\n";
+        }
+        ptr += packetBytes;
+      }
+    }
+  }  //continue;
+  printf("----------------------\n");
+
+  return 0;
+}
+
+
 //int GDetector::Build(std::vector<TRawEvent>& raw_data){
 //  int output = 0;
 //  return output;
 //}
+
+
 
 
 

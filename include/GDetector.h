@@ -3,8 +3,10 @@
 
 #include <vector>
 
+#include <Gtypes.h>
+
 #include <TNamed.h>
-//#include "GDetectorHit.h"
+#include <GDetectorHit.h>
 
 class GDetector : public TNamed {
   public:
@@ -32,11 +34,21 @@ class GDetector : public TNamed {
     //virtual void SetRunStart(unsigned int unix_time) { fRunStart = unix_time; }
     //int Build(); // build from transient data member.
 
+    inline bool operator<(const GDetector& other) const {
+      // reverse comparison so smallest timestamp has highest priority
+      return fTimestamp > other.fTimestamp;
+    }
+
+    //int Unpack(std::vector<Rec> &event);
+    int Unpack(std::vector<Rec> &event,const FileContext &ctx);
+
   protected:
     Long_t fTimestamp;
 
   private:
     //std::vector<Rec*> fRawData;  //!
+    std::vector<GDetectorHit> fHits;
+
 
   ClassDef(GDetector,1)
 };

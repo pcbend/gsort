@@ -36,10 +36,21 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_CXX_FLAGS ${ROOT_CXX_FLAGS})
 
 #create the executablei, we do it 'first' so the exectuable variable is avail in subdirs
-add_executable(gsort src/gsort.cxx)
+add_executable(gsort 
+  src/gsort.cxx
+)
 
 #setting include paths: TODO, copy headers from library directories(?)
 include_directories(include ${ROOT_INCLUDE_DIRS}) 
+
+
+target_link_libraries(gsort 
+  Gint
+  GFILE
+  GDETECTOR
+  GTYPES
+  ${ROOT_LIBRARIES}
+)        
 
 #This tells cmake to continue into these directories.
 add_subdirectory(libraries)

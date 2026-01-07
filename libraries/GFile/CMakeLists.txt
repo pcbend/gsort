@@ -17,9 +17,10 @@ root_generate_dictionary(G__GFILE
     LINKDEF "${CMAKE_CURRENT_SOURCE_DIR}/Linkdef.h" # Explicit full path for Linkdef.h too
 )
 
+target_link_libraries(GFILE PUBLIC ROOT::Core GCORE)
 
 
-target_link_libraries(GFILE PUBLIC ROOT::Core ROOT::ROOTDataFrame)
+#ROOT::Core ROOT::ROOTDataFrame)
 
 #link the compiled libraries above to the final executable.
 

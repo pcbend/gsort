@@ -3,7 +3,7 @@
 
 //#include <cstdio>
 #include <iostream>
-//#include <iomanip>
+#include <iomanip>
 
 //#include <stdint.h>
 #include <Rtypes.h>
@@ -229,6 +229,13 @@ typedef struct GEBInteractionPoint { // HPGe Segment Hit Type 1;
   friend std::ostream& operator<<(std::ostream& os, const GEBInteractionPoint &fSeg);
 }__attribute__((__packed__)) GEBInteractionPoint;
 
+inline std::ostream& operator<<(std::ostream& os, const GEBInteractionPoint &fSeg) {
+   std::streamsize ss = std::cout.precision();
+   return os << "HPGeSegment[" << std::setw(3) << fSeg.seg << "]\t("
+             << std::setprecision(2)  << fSeg.x << ", " << fSeg.y << ", " << fSeg.z << ")\t"
+             << fSeg.seg_ener << " / " << fSeg.e << std::setprecision(ss) << std::endl;
+}
+
 
 typedef struct GEBBankType1 { // Decomposed GRETINA Data
    Int_t     type;
@@ -250,25 +257,81 @@ typedef struct GEBBankType1 { // Decomposed GRETINA Data
   friend std::ostream& operator<<(std::ostream& os, const GEBBankType1 &bank);
 }__attribute__((__packed__)) GEBBankType1;
 
+inline std::ostream& operator<<(std::ostream& os, const GEBBankType1 &bank) {
+   std::streamsize ss = std::cout.precision();
+   //os << "************************" << std::endl;
+   os << "type        = "<< std::setw(8) << std::hex << bank.type << std::dec << std::endl;
+   os << "crystal_id  = "<< std::setw(8) << bank.crystal_id << std::endl;
+   os << "num of pts  = "<< std::setw(8) << bank.num << std::endl;
+   os << "CC energy   = "<< std::setw(8) << bank.tot_e << std::endl;
+   os << "raw CC charge x4: " << std::endl;
+   os << "\t[0]: " << std::setw(10) << bank.core_e[0] << std::endl;
+   os << "\t[1]: " << std::setw(10) << bank.core_e[1] << std::endl;
+   os << "\t[2]: " << std::setw(10) << bank.core_e[2] << std::endl;
+   os << "\t[3]: " << std::setw(10) << bank.core_e[3] << std::endl;
+   os << "timestamp   = " << bank.timestamp << std::endl;
+   os << std::setprecision(2);
+   os << "trig_time   = "<< std::setw(8) << bank.trig_time << std::endl;
+   os << "t0          = "<< std::setw(8) << bank.t0 << std::endl;
+   os << "cfd         = "<< std::setw(8) << bank.cfd << std::endl;
+   os << "chisq       = "<< std::setw(8) << bank.chisq << std::endl;
+   os << "norm_chisq  = "<< std::setw(8) << bank.norm_chisq << std::endl;
+   os << "baseline    = "<< std::setw(8) << bank.baseline << std::endl;
+   os << "bl prestep  = "<< std::setw(8) << bank.prestep  << std::endl;
+   os << "bl poststep = "<< std::setw(8) << bank.poststep << std::endl;
+   os << std::setprecision(ss);
+   os << "pad (error) = "<< std::setw(8) << bank.pad << std::endl;
+   //if(bank.pad) 
+   //  os << "PAD INFO: " << bank.intpts[MAX_INPUT-1];
+   //for(int x=0;x<16;x++)
+   for(int x=0;x<bank.num;x++)
+      os << "\t" << bank.intpts[x];
+   os << "************************" << std::endl;
+   return os;
+}
 
-static UShort_t SwapShort(UShort_t datum);
+
+
+//static UShort_t SwapShort(UShort_t datum);
+inline UShort_t SwapShort(UShort_t datum) {
+  UShort_t temp = 0;
+  temp = (datum&0x00ff);
+  return (temp<<8) + (datum>>8);
+}          
 
 struct GEBMode3Head {
   UShort_t a2;
   UShort_t a1;
   UShort_t lengthGA;
   UShort_t board_id;
-  Int_t  GetLength() const;
-  Int_t  GetChannel() const;
-  Int_t  GetVME() const;
-  Int_t  GetCrystal() const;
-  Int_t  GetHole() const;
-  Int_t  GetSegmentId() const;
-  Int_t  GetCrystalId() const;
+  //Int_t  GetLength()    const { return  lengthGA&0x07ff; }
+  Int_t  GetLength()    const { return  lengthGA>>8; }
+  Int_t  GetChannel()   const { return  board_id&0x000f; }
+  Int_t  GetVME()       const { return (board_id&0x0030)>>4; }
+  Int_t  GetCrystal()   const { return (board_id&0x00c0)>>6; }
+  Int_t  GetHole()      const { return (board_id&0x1f00)>>8 ; }
+  Int_t  GetSegmentId() const { return GetVME()*10+GetChannel(); }
+  Int_t  GetCrystalId() const { return GetHole()*4+GetCrystal(); }
   friend std::ostream& operator<<(std::ostream& os, const GEBMode3Head &head);
 }__attribute__((__packed__));
 
-static void SwapMode3Head(GEBMode3Head &head);
+
+//static void SwapMode3Head(GEBMode3Head &head);
+inline GEBMode3Head SwapMode3Head(const GEBMode3Head &in) {
+  GEBMode3Head out = in;
+  out.lengthGA = SwapShort(out.lengthGA);
+  out.board_id = SwapShort(out.board_id);
+  return out;
+}         
+
+inline std::ostream& operator<<(std::ostream& os, const GEBMode3Head &head) {
+  os << "a1       = " << std::hex << head.a1 << std::endl;
+  os << "a2       = " << std::hex << head.a2 << std::endl;
+  os << "board_id = " << std::hex << head.board_id << std::endl;
+  os << "lengthGA = " << std::hex << head.lengthGA << std::endl;
+  return os;    
+}         
+
 
 //typedef struct {
 struct GEBMode3Data {
@@ -296,7 +359,136 @@ struct GEBMode3Data {
   friend std::ostream& operator<<(std::ostream& os, const GEBMode3Data &data);
 }__attribute__((__packed__));
 
-static void SwapMode3Data(GEBMode3Data &data);
+//static void SwapMode3Data(GEBMode3Data &data);
+inline GEBMode3Data SwapMode3Data(const GEBMode3Data &in) {
+  //std::cout << __PRETTY_FUNCTION__ << std::endl;
+  GEBMode3Data out = in;
+  out.led_middle   = SwapShort(out.led_middle)   ;
+  out.led_low      = SwapShort(out.led_low)      ;
+  out.energy_low   = SwapShort(out.energy_low)   ;                                                                 
+  out.led_high     = SwapShort(out.led_high)     ;
+  out.cfd_low      = SwapShort(out.cfd_low)      ;
+  out.energy_high  = SwapShort(out.energy_high)  ;
+  out.cfd_high     = SwapShort(out.cfd_high)     ;
+  out.cfd_middle   = SwapShort(out.cfd_middle)   ;
+  out.cfd_pt1_high = SwapShort(out.cfd_pt1_high) ;
+  out.cfd_pt1_low  = SwapShort(out.cfd_pt1_low)  ;
+  out.cfd_pt2_high = SwapShort(out.cfd_pt2_high) ;
+  out.cfd_pt2_low  = SwapShort(out.cfd_pt2_low ) ;
+  return out;
+}          
+
+inline std::ostream& operator<<(std ::ostream& os, const GEBMode3Data &data) {
+  os << "Led                 : " << data.GetLed() << "\n"
+     << "Cfd                 : " << data.GetCfd() << "\n"
+     //<< "Energy              : " << std::hex << "0x" << data.GetEnergy() << std::dec << "\n"
+     << "Energy Low          : " << data.energy_low << "\n"
+     << "Energy High         : " << data.energy_high << "\n"
+     << "Energy Low          : " << std::hex << "0x" << data.energy_low << std::dec << "\n"
+     << "Energy High         : " << std::hex << "0x" << data.energy_high << std::dec << "\n";
+  return os;    
+}          
+
+inline Long_t   GEBMode3Data::GetLed() const { return (((long)led_high)<<32) + (((long)led_middle)<<16) + (((long)led_low)<<0); }
+inline Long_t   GEBMode3Data::GetCfd() const { return (((long)cfd_high)<<32) + (((long)cfd_middle)<<16) + (((long)cfd_low)<<0); }
+inline UShort_t GEBMode3Data::GetDeltaT1() const { return cfd_low; }
+inline UShort_t GEBMode3Data::GetDeltaT2() const { return cfd_middle; }
+            
+inline Int_t  GEBMode3Data::GetEnergy(GEBMode3Head &head) const  {
+  int channel = head.GetChannel(); 
+  //if ((channel==1) &&( head.GetHole()==9) && (head.GetCrystal()==3) && (head.GetVME()==3))
+    //channel = 9; //  Q5 e5 has an inverted radial box, treat it as a core.  pcb.
+  int  temp = (((int)energy_high)<<16) + (((int)energy_low)<<0);
+  bool sign = temp&0x01000000;     
+       temp = temp&0x00ffffff;     
+  if(sign)  
+    temp = temp - (int)0x01000000; 
+  if(channel!=9)  // do not remove.  this is 100% needed. pcb.
+    temp = -temp;                  
+  return temp;                     
+}           
+            
+inline Int_t  GEBMode3Data::GetEnergy0(GEBMode3Head &head) const  {
+  int channel = head.GetChannel(); 
+  //if ((channel==1) &&( head.GetHole()==9) && (head.GetCrystal()==3) && (head.GetVME()==3))
+    //channel = 9; //  Q5 e5 has an inverted radial box, treat it as a core.  pcb.
+  int  eng_high_bit = (cfd_pt1_low & 0x01ff); 
+  int  temp = (((int) eng_high_bit )<<16) + (((int)cfd_high)<<0);
+   bool sign = temp&0x01000000;    
+       temp = temp&0x00ffffff;     
+  if(sign)  
+    temp = temp - (int)0x01000000; 
+  if(channel!=9)  // do not remove.  this is 100% needed. pcb.
+    temp = -temp;                  
+  return temp;                     
+}           
+            
+inline Int_t  GEBMode3Data::GetEnergy1(GEBMode3Head &head) const  {
+  int channel = head.GetChannel(); 
+  //if ((channel==1) &&( head.GetHole()==9) && (head.GetCrystal()==3) && (head.GetVME()==3))
+    //channel = 9; //  Q5 e5 has an inverted radial box, treat it as a core.  pcb.
+            
+  int  eng_low_bit  = (cfd_pt1_low & 0xfe00) >>9; 
+  int  eng_mid_bit  = (cfd_pt1_high);
+  int  eng_high_bit = (cfd_pt2_low&0x0003);
+            
+  int  temp = (((int) eng_high_bit )<<23) + (((int)eng_mid_bit)<<7) + (((int)eng_low_bit)<<0) ;
+            
+   bool sign = temp&0x01000000;    
+       temp = temp&0x00ffffff;     
+  if(sign)  
+    temp = temp - (int)0x01000000; 
+  if(channel!=9)  // do not remove.  this is 100% needed. pcb.
+    temp = -temp;                  
+  return temp;                     
+}           
+
+inline Int_t  GEBMode3Data::GetEnergy2(GEBMode3Head &head) const  {
+  int channel = head.GetChannel();
+  //if ((channel==1) &&( head.GetHole()==9) && (head.GetCrystal()==3) && (head.GetVME()==3))
+    //channel = 9; //  Q5 e5 has an inverted radial box, treat it as a core.  pcb.
+           
+  int  eng_low_bit  = (cfd_pt2_low &0xfffc)>>2; 
+  int  eng_high_bit = (cfd_pt2_high & 0x07ff); 
+           
+  int  temp = (((int) eng_high_bit )<<14) + (((int)eng_low_bit)<<0);
+           
+   bool sign = temp&0x01000000;
+       temp = temp&0x00ffffff;
+  if(sign) 
+    temp = temp - (int)0x01000000;
+  if(channel!=9)  // do not remove.  this is 100% needed. pcb.
+    temp = -temp;
+  return temp;
+}          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 struct GEBS800Header {
   Int_t    total_size;

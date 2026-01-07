@@ -6,12 +6,18 @@
 #endif
 
 #include <TRint.h>
+#include "TSysEvtHandler.h"
 
 #include <Gtypes.h>
+#include <globals.h>
 
 class TFile;
 
 #ifndef __CINT__
+
+#include <unistd.h>
+#include <fcntl.h>
+
 class GintOptions {
   private:
     GintOptions() = default;
@@ -25,9 +31,30 @@ class GintOptions {
   private:
     static std::vector<std::string> fGEBFiles;
 };
+
+class GSigHandler : public TSignalHandler {
+  public:
+    GSigHandler() : TSignalHandler(kSigInterrupt,false) {} 
+
+    bool Notify() override {
+      static std::atomic<int> count{0};
+      int n = ++count;
+      if(n==1) { 
+        gShutdown.store(true);
+       
+        // Redirect stdout + stderr to /dev/null
+        int devnull = ::open("/dev/null", O_WRONLY);
+        if (devnull >= 0) {
+          ::dup2(devnull, STDOUT_FILENO);
+          ::close(devnull);
+        }
+        return true;
+      }
+      _exit(1);
+      return true;
+    }
+};
 #endif
-
-
 
 class Gint : public TRint {
   private:
