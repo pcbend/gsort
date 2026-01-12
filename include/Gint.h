@@ -41,13 +41,15 @@ class GSigHandler : public TSignalHandler {
       int n = ++count;
       if(n==1) { 
         gShutdown.store(true);
-       
+    
+        /*
         // Redirect stdout + stderr to /dev/null
         int devnull = ::open("/dev/null", O_WRONLY);
         if (devnull >= 0) {
           ::dup2(devnull, STDOUT_FILENO);
           ::close(devnull);
         }
+        */
         return true;
       }
       _exit(1);
@@ -75,9 +77,6 @@ class Gint : public TRint {
   public:
     void      LoadOptions(int argc, char **argv);
     void      ApplyOptions(); 
-#if !defined(__ROOTCLING__) && !defined(__CINT__)
-    EFileType DetermineFileType(const std::string& filename) const;
-#endif
     //bool      FileAutoDetect(const std::string& filename);
     TFile*    OpenRootFile(const std::string& filename, Option_t *opt="");
 

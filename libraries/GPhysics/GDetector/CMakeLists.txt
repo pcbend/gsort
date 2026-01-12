@@ -20,7 +20,7 @@ root_generate_dictionary(G__GDETECTOR
 
 
 
-target_link_libraries(GDETECTOR PUBLIC ROOT::Core GTYPES)
+target_link_libraries(GDETECTOR PUBLIC ROOT::Core GTYPES GHISTOGRAM)
 
 #link the compiled libraries above to the final executable.
 

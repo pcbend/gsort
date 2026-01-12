@@ -9,4 +9,4 @@ add_subdirectory(GFile)
 
 add_subdirectory(GPhysics)
 
-
+add_subdirectory(GHistogram)

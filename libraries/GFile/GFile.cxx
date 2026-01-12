@@ -8,6 +8,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <regex>
 
 #include <TTimer.h>
 
@@ -32,13 +33,14 @@ GFile::GFile(std::string inFile) : fOffset(0),fMapFile(0),fMapOpened(false),fDat
   if(!(fMapFile == MAP_FAILED)) {
     fMapOpened = true;
     fData = static_cast<char*>(fMapFile);//
-    fCtx.base = fData;
-    fCtx.size = fSize;
+    fInfo.base = fData;
+    fInfo.size = fSize;
   }
-
+  SetRunSubRun(inFile);
   SetFileType(inFile);
 
 }
+
 
 GFile::~GFile() {
   if(fMapOpened) 
@@ -46,11 +48,35 @@ GFile::~GFile() {
   if(fFd>0) close(fFd); 
 }
 
-void GFile::SetFileType(std::string& fname) {
-  //do something more useful.
-  fFileType = kGEB;
-
+void GFile::SetFileType(const std::string& fname) {
+  fInfo.type = DetermineFileType(fname);
 }
+
+void GFile::SetRunSubRun(const std::string& s) {
+  static const std::regex rx(
+      R"((^|[^A-Za-z0-9])(?:run)(\d{1,10})(?:[_-](\d{1,10}))?)",
+      std::regex::icase);
+
+  std::smatch m;
+  auto begin = s.cbegin();
+  auto end   = s.cend();
+
+  while (std::regex_search(begin, end, m, rx)) {
+    // m[0] includes the leading separator; m[2]=run digits, m[3]=subrun digits (optional)
+    fInfo.run = std::stoi(m[2].str());
+    if (m[3].matched) fInfo.subrun = std::stoi(m[3].str());
+
+    fInfo.matched = m[0].str();
+    // Trim leading separator from matched for nicer debugging display
+    if (!fInfo.matched.empty() && !std::isalnum((unsigned char)fInfo.matched[0])) {
+      fInfo.matched.erase(fInfo.matched.begin());
+    }
+    return; // first good match
+  }
+
+  return;
+}
+
 
 void GFile::ReadSome() { 
   //check file type
@@ -105,19 +131,24 @@ bool GFile::Iteration() {
     fDoneReading = true;
     return false;
   }
-  GEBHeader *header = (GEBHeader*)(fData+fOffset);  //most recent...
   
-  static uint64_t seq=0;
-  this->emplace(Rec{static_cast<uint64_t>(header->timestamp),
-                    static_cast<uint32_t>(header->type),
-                    static_cast<uint32_t>(header->size),
-                    static_cast<uint64_t>(fOffset),
-                    seq++});
- if(header->timestamp>fLastTimestamp)
-   fLastTimestamp = header->timestamp;
+  if(fInfo.type==EFileType::kGEB) {
+    GEBHeader *header = (GEBHeader*)(fData+fOffset);  //most recent...
+    static uint64_t seq=0;
+    this->emplace(Rec{static_cast<uint64_t>(header->timestamp),
+                      static_cast<uint32_t>(header->type),
+                      static_cast<uint32_t>(header->size),
+                      static_cast<uint64_t>(fOffset),
+                      seq++});
+    if(header->timestamp>fLastTimestamp)
+      fLastTimestamp = header->timestamp;
+    fOffset += sizeof(GEBHeader) + header->size;
+  } else {
+    printf("i don't know how to sort filetype[%i] yet...\n",int(fInfo.type));
+    return false;
+  }
 
- fOffset += sizeof(GEBHeader) + header->size;
-  
+
   return true; 
 } 
 

@@ -352,10 +352,10 @@ struct GEBMode3Data {
   UShort_t GetDeltaT1() const;
   UShort_t GetDeltaT2() const;
 
-  Int_t  GetEnergy(GEBMode3Head&) const;
-  Int_t  GetEnergy0(GEBMode3Head&) const;
-  Int_t  GetEnergy1(GEBMode3Head&) const;
-  Int_t  GetEnergy2(GEBMode3Head&) const;
+  Int_t  GetEnergy(const GEBMode3Head&) const;
+  Int_t  GetEnergy0(const GEBMode3Head&) const;
+  Int_t  GetEnergy1(const GEBMode3Head&) const;
+  Int_t  GetEnergy2(const GEBMode3Head&) const;
   friend std::ostream& operator<<(std::ostream& os, const GEBMode3Data &data);
 }__attribute__((__packed__));
 
@@ -394,7 +394,7 @@ inline Long_t   GEBMode3Data::GetCfd() const { return (((long)cfd_high)<<32) + (
 inline UShort_t GEBMode3Data::GetDeltaT1() const { return cfd_low; }
 inline UShort_t GEBMode3Data::GetDeltaT2() const { return cfd_middle; }
             
-inline Int_t  GEBMode3Data::GetEnergy(GEBMode3Head &head) const  {
+inline Int_t  GEBMode3Data::GetEnergy(const GEBMode3Head &head) const  {
   int channel = head.GetChannel(); 
   //if ((channel==1) &&( head.GetHole()==9) && (head.GetCrystal()==3) && (head.GetVME()==3))
     //channel = 9; //  Q5 e5 has an inverted radial box, treat it as a core.  pcb.
@@ -408,7 +408,7 @@ inline Int_t  GEBMode3Data::GetEnergy(GEBMode3Head &head) const  {
   return temp;                     
 }           
             
-inline Int_t  GEBMode3Data::GetEnergy0(GEBMode3Head &head) const  {
+inline Int_t  GEBMode3Data::GetEnergy0(const GEBMode3Head &head) const  {
   int channel = head.GetChannel(); 
   //if ((channel==1) &&( head.GetHole()==9) && (head.GetCrystal()==3) && (head.GetVME()==3))
     //channel = 9; //  Q5 e5 has an inverted radial box, treat it as a core.  pcb.
@@ -423,7 +423,7 @@ inline Int_t  GEBMode3Data::GetEnergy0(GEBMode3Head &head) const  {
   return temp;                     
 }           
             
-inline Int_t  GEBMode3Data::GetEnergy1(GEBMode3Head &head) const  {
+inline Int_t  GEBMode3Data::GetEnergy1(const GEBMode3Head &head) const  {
   int channel = head.GetChannel(); 
   //if ((channel==1) &&( head.GetHole()==9) && (head.GetCrystal()==3) && (head.GetVME()==3))
     //channel = 9; //  Q5 e5 has an inverted radial box, treat it as a core.  pcb.
@@ -443,7 +443,7 @@ inline Int_t  GEBMode3Data::GetEnergy1(GEBMode3Head &head) const  {
   return temp;                     
 }           
 
-inline Int_t  GEBMode3Data::GetEnergy2(GEBMode3Head &head) const  {
+inline Int_t  GEBMode3Data::GetEnergy2(const GEBMode3Head &head) const  {
   int channel = head.GetChannel();
   //if ((channel==1) &&( head.GetHole()==9) && (head.GetCrystal()==3) && (head.GetVME()==3))
     //channel = 9; //  Q5 e5 has an inverted radial box, treat it as a core.  pcb.

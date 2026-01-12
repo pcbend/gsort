@@ -13,6 +13,12 @@
 #include <string>
 #include <vector>
 
+#include <regex>
+
+#include <Gtypes.h>
+
+
+
 
 bool fileExists(const char *filename){
   //std::ifstream(filename);

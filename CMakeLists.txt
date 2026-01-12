@@ -49,6 +49,8 @@ target_link_libraries(gsort
   GFILE
   GDETECTOR
   GTYPES
+  GHISTOGRAM
+  UNPACKER
   ${ROOT_LIBRARIES}
 )        
 

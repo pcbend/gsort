@@ -5,19 +5,21 @@
 #include <GDetector.h>
 #include <Gtypes.h>
 
+#include <Unpacker.h>
+
 #include <vector>
 #include <cstdint>
 #include <thread>
 #include <chrono>
 
 template<class In>
-class GPhysicsThread : public GThread<GDetector> {
+class GPhysicsThread : public GThread<std::vector<std::unique_ptr<GDetector> > > {
   public:
     using Event = std::vector<In>;
-    using Base  = GThread<GDetector>;
+    using Base  = GThread<std::vector<std::unique_ptr<GDetector> > >;
 
-    explicit GPhysicsThread(GThread<Event>& producer, const FileContext &ctx) 
-      : fProducer(producer), fCtx(ctx) { }
+    explicit GPhysicsThread(GThread<Event>& producer, const FileInfo &info) 
+      : fProducer(producer), fInfo(info) { }
     //explicit GPhysicsThread(GThread<In>& producer) : fProducer(producer) { }
 
     ~GPhysicsThread() override = default;
@@ -39,7 +41,7 @@ class GPhysicsThread : public GThread<GDetector> {
 
   private:
     GThread<Event>& fProducer;
-    const FileContext &fCtx;
+    const FileInfo &fInfo;
     uint64_t fEvents{0};
 
     bool Iteration() override {
@@ -53,13 +55,14 @@ class GPhysicsThread : public GThread<GDetector> {
       }
       fEvents++;
 
-      GDetector det;
-      det.Clear();
-      //for (const Rec &r : ev) {
-      //  det.SetTimestamp(r.timestamp);
-        det.Unpack(ev,fCtx);
-      //}
-      this->emplace(std::move(det));
+      //Unpack(ev,fInfo);
+
+      //thread_local std::vector<GDetector> dets;
+      //dets.clear();
+      //dets.reserve(4);
+      std::vector<std::unique_ptr<GDetector> > dets = Unpack(ev,fInfo);
+      this->emplace(std::move(dets));
+      dets.reserve(4);
       return true;
     }
 

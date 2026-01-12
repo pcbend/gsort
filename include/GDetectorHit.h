@@ -3,7 +3,7 @@
 
 #include <TObject.h>
 
-class GDetectorHit : public TObject {
+class GDetectorHit {
 public:
   GDetectorHit();
   virtual ~GDetectorHit();
@@ -14,20 +14,23 @@ public:
   //virtual Int_t Compare(const TObject *obj) const; //needed for root containers
   //virtual bool IsSortable() const { return true; }
 
-  virtual void  Copy(TObject&) const;
-  virtual void  Clear(Option_t *opt = "" );
-  virtual void  Print(Option_t *opt = "" ) const;
+  //virtual void  Copy(TObject&) const;
+  //virtual void  Clear(Option_t *opt = "" );
+  //virtual void  Print(Option_t *opt = "" ) const;
 
-  Int_t  Address()   const        { return fAddress; }
+  void SetAddress(uint32_t address)      { fAddress = address; }
+  uint32_t  Address()   const            { return fAddress; }
+  
+  void SetTimestamp(uint64_t timestamp)  { fTimestamp = timestamp; }
+  uint64_t Timestamp() const             { return fTimestamp; }
+
+
   //virtual Int_t Charge() const;
   //virtual float RawCharge() const { return fCharge; }
   //Int_t  Time() const             { return fTime; }
-  long   Timestamp() const        { return fTimestamp; }
 
-  void SetAddress(int address)      { fAddress = address; }
   //void SetCharge(int charge);
   //void SetTime(int time)            { fTime = time; }
-  void SetTimestamp(long timestamp) { fTimestamp = timestamp; }
 
   //double GetEnergy() const; //applies TChannel ENERGYCOEFF to Charge
   //void SetEnergy(double energy);
@@ -39,11 +42,11 @@ public:
 
 protected:
   uint32_t fAddress;
-  float    fCharge;
   uint64_t fTimestamp;
-  double   fTime;
+  //float    fCharge;
+  //double   fTime;
 
-  ClassDef(GDetectorHit,1)
+  ClassDef(GDetectorHit,2)
 };
 
 #endif

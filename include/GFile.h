@@ -26,12 +26,7 @@ class GFile : public GThread<Rec> {
 
     void print() override;
 
-    const FileContext &Context() const { return fCtx; }
-
-    enum EFileType {
-      kGEB,
-      kEVT 
-    };
+    const FileInfo &Info() const { return fInfo; }
 
   protected:
     bool Iteration() override; 
@@ -40,10 +35,10 @@ class GFile : public GThread<Rec> {
     //bookkeeping
     bool fDoneReading{false};
     uint64_t fLastTimestamp{0};
-    FileContext fCtx;
+    FileInfo fInfo;
 
-    void SetFileType(std::string&);
-    EFileType fFileType;
+    void SetRunSubRun(const std::string& s);
+    void SetFileType(const std::string&);
     
     //mmapping
     int    fFd;
@@ -53,7 +48,7 @@ class GFile : public GThread<Rec> {
     bool   fMapOpened;
     char*  fData;
     //Queue information
-
+  
   ClassDef(GFile,0)
 };
 

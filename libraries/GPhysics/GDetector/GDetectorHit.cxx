@@ -1,19 +1,13 @@
 #include "GDetectorHit.h"
 
-#include <iostream>
-#include <cmath>
-
-#include "TClass.h"
-#include "TRandom.h"
-#include "TBuffer.h"
-
 GDetectorHit::GDetectorHit() {
   //Class()->CanIgnoreTObjectStreamer();
-  Clear();
+  //Clear();
 }
 
 GDetectorHit::~GDetectorHit() { }
 
+/*
 void GDetectorHit::Clear(Option_t *opt) {
   TObject::Clear(opt);
   fAddress   = 0;
@@ -21,8 +15,11 @@ void GDetectorHit::Clear(Option_t *opt) {
   fTime      = 0;
   fTimestamp = 0;
 }
-void GDetectorHit::Print(Option_t *opt) const { }
+*/
 
+//void GDetectorHit::Print(Option_t *opt) const { }
+
+/*
 void GDetectorHit::Copy(TObject& obj) const {
   TObject::Copy(obj);
 
@@ -32,7 +29,7 @@ void GDetectorHit::Copy(TObject& obj) const {
   hit.fTime = fTime;
   hit.fTimestamp = fTimestamp;
 }
-
+*/
 
 /*
 void GDetectorHit::SetCharge(int charge) {

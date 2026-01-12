@@ -16,11 +16,13 @@
 #include <GStatusThread.h>
 #include <GSinkThread.h>
 #include <GPhysicsThread.h>
+#include <GTTreeThread.h>
 
 #include <GDetector.h>
+#include <GHistogramer.h>
 
 #include <globals.h>
-
+#include <utils.h>
 
 
 std::vector<std::string> GintOptions::fGEBFiles;
@@ -175,31 +177,6 @@ void Gint::ApplyOptions()  {
 }
 
 
-EFileType Gint::DetermineFileType(const std::string& filename) const {
-  size_t dot = filename.find_last_of('.');
-  std::string ext = filename.substr(dot+1);
-
-  if((ext=="gz") || (ext=="bz2") || (ext=="zip")) {
-    std::string remaining = filename.substr(0,dot);
-    ext = remaining.substr(remaining.find_last_of('.')+1);
-  }
-  
-  if(ext == "dat") {
-    return EFileType::kGEB;
-  } if(ext == "cal") {
-    return EFileType::kCALIBRATION;
-  } else if(ext == "root") {
-    return EFileType::kROOTFILE;
-  } else if((ext=="c") || (ext=="C") 
-            || (ext=="c+") || (ext=="C+") 
-            || (ext=="c++") || (ext=="C++")) {
-    return EFileType::kMACRO;
-  } else if(ext == "cuts") {
-    return EFileType::kCUTS;
-  } else {
-    return EFileType::kUNKNOWN;
-  }
-};
 
 /*
 bool Gint::FileAutoDetect(const std::string& filename) {
@@ -295,20 +272,35 @@ long Gint::ProcessLine(const char* line, bool sync, int* error) {
   return retval;
 }
 
-
+// the PIPELIE 
 void Gint::Sort(std::string fname) {
+
   GFile infile(fname);
-  //std::thread fileThread(&GFile::Read, &infile);
-  //fileThread.detach();
   infile.start();
+
+  std::string histName;
+  if(infile.Info().subrun>0) 
+    histName = Form("hist%04i_%03i.root",infile.Info().run,infile.Info().subrun);
+  else  
+    histName = Form("hist%04i.root",infile.Info().run);
+
+  GHistogramer::Get().SetOutFile(histName);
+
   GEventBuilder<Rec> eventbuilder(infile);
   eventbuilder.start();
 
-  GPhysicsThread<Rec> unpacker(eventbuilder,infile.Context());
-  unpacker.start();
+  GPhysicsThread<Rec> physics(eventbuilder,infile.Info());
+  physics.start();
 
-  GSinkThread<GDetector> sink(unpacker);
-  sink.start();
+  using DetVec = std::vector<std::unique_ptr<GDetector>>;
+  GTTreeThread<DetVec> treeThread(physics, "output.root");
+  treeThread.start();
+
+  //GTTreeThread<std::vector<std::unique_ptr<GDetector> > > treeThread(physics,"output.root");
+  //treeThread.start();
+
+  //GSinkThread<std::vector<std::unique_ptr<GDetector> > > sink(physics);
+  //sink.start();
 
   GStatusThread status;
   status.start();
@@ -318,6 +310,7 @@ void Gint::Sort(std::string fname) {
   //sink.join();
 
   status.join();
+  GHistogramer::Get().Close();
 
 }
 

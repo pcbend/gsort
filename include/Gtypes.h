@@ -13,7 +13,18 @@ enum class EConnectionType {
   kHIST,
   kVOID,
   kUNKNOWN
-  };
+};
+
+enum class EDetector {
+  kGretina = 1,
+  kMode3   = 3,
+  kDDAS    = 10,
+  kTigress = 20,
+  kEMMA    = 21,
+  kBank88  = 88
+
+};
+
 
 enum class EFileType {
   kUNKNOWN          =  -1,
@@ -27,10 +38,18 @@ enum class EFileType {
   kCUTS             = 2052
 };
 
-struct FileContext { 
+EFileType DetermineFileType(const std::string& filename);
+
+struct FileInfo {
+  int run        = -1;
+  int subrun     = -1;
+  std::string matched; 
+  
+  EFileType type = EFileType::kUNKNOWN;
   const char * base{nullptr};
   size_t size{0};
 };
+
 
 struct Rec {
   uint64_t timestamp;
@@ -46,7 +65,7 @@ struct Rec {
   int64_t operator-(const Rec& other) const {
     return static_cast<int64_t>(timestamp) - static_cast<int64_t>(other.timestamp);
   }
-  void print(const FileContext&) const;
+  void print(const FileInfo&) const;
 };
 
 class myType { 
