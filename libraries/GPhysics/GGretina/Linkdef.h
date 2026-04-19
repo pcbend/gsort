@@ -8,5 +8,10 @@
 //#pragma link C++ class std::vector<GDetectorHit>+;
 //#pragma link C++ class GDetector+;
 
+#pragma link C++ class GEBBankType1+;
+#pragma link C++ class std::vector<GEBBankType1>+;
+#pragma link C++ class GGretina+;
+
+
 
 #endif

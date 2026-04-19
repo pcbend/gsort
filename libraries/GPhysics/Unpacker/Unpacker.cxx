@@ -5,6 +5,7 @@
 #include <Gtypes.h>
 #include <GBanks.h>
 
+#include <GGretina.h>
 #include <GBank88.h>
 
 #include <GHistogramer.h>
@@ -27,6 +28,7 @@ std::vector<std::unique_ptr<GDetector> > Unpack(const std::vector<Rec> &event, c
 std::vector<std::unique_ptr<GDetector> > UnpackGEBTYPE1(const std::vector<Rec> &event, const FileInfo &info) {
   std::vector<std::unique_ptr<GDetector> > out;
   out.reserve(2);
+  auto gretina = std::make_unique<GGretina>();
   for(auto r : event) {
     const char *recStart = info.base + r.offset;
     auto* header = reinterpret_cast<const GEBHeader*>(recStart);
@@ -36,6 +38,7 @@ std::vector<std::unique_ptr<GDetector> > UnpackGEBTYPE1(const std::vector<Rec> &
         {
           auto *hit = reinterpret_cast<const GEBBankType1*>(payload); 
           GHistogramer::Get().Fill("summary",16000,0,8000,hit->tot_e,200,0,200,hit->crystal_id);
+          gretina->Push(*hit);
         }
         break;
       case 8: //bank88 
@@ -48,8 +51,9 @@ std::vector<std::unique_ptr<GDetector> > UnpackGEBTYPE1(const std::vector<Rec> &
       default:
         break;
     };
-
   }
+  //if(gretina.Size())
+  out.emplace_back(std::move(gretina));
   return out;
 }
 

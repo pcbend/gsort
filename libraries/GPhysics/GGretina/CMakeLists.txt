@@ -1,6 +1,6 @@
 
 #this will compile the current library.
-add_library(GGRETINA SHARED GBank88.cxx GMode3Hit.cxx)
+add_library(GGRETINA SHARED GGretina.cxx GBank88.cxx GMode3Hit.cxx)
 
 target_include_directories(GGRETINA PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_include_directories(GGRETINA PUBLIC "${CMAKE_SOURCE_DIR}/include")
@@ -15,6 +15,7 @@ root_generate_dictionary(G__GGRETINA
     #"${CMAKE_SOURCE_DIR}/include/GDetector.h" # <- Explicit full path
     "${CMAKE_SOURCE_DIR}/include/GBank88.h" # <- Explicit full path
     "${CMAKE_SOURCE_DIR}/include/GMode3Hit.h" # <- Explicit full path
+    "${CMAKE_SOURCE_DIR}/include/GGretina.h" # <- Explicit full path
     MODULE GGRETINA
     LINKDEF "${CMAKE_CURRENT_SOURCE_DIR}/Linkdef.h" # Explicit full path for Linkdef.h too
 )
