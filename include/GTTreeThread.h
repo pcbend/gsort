@@ -7,6 +7,7 @@
 #include <TTree.h>
 
 #include <GBank88.h>
+#include <GGretina.h>
 
 template<class In>
 class GTTreeThread : public GThread<int> {
@@ -91,6 +92,9 @@ class GTTreeThread : public GThread<int> {
 
           switch(det) {
             case EDetector::kGretina:
+              branchInfo.obj = std::make_unique<GGretina>();
+              branchInfo.addr = branchInfo.obj.get();
+              branchInfo.br  = fTree->Branch("gretina","GGretina",&branchInfo.addr,32000,9);
               continue;
             case EDetector::kMode3:
               continue;
