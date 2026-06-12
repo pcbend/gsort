@@ -10,13 +10,13 @@
 #include <Gtypes.h>
 #include <argParser.h>
 //#include <Histomatic.h>
-#include <GFile.h>
-#include <GEventBuilder.h>
+//#include <GFile.h>
+//#include <GEventBuilder.h>
 
-#include <GStatusThread.h>
-#include <GSinkThread.h>
-#include <GPhysicsThread.h>
-#include <GTTreeThread.h>
+//#include <GStatusThread.h>
+//#include <GSinkThread.h>
+//#include <GPhysicsThread.h>
+//#include <GTTreeThread.h>
 
 #include <GDetector.h>
 #include <GHistogramer.h>
@@ -275,6 +275,11 @@ long Gint::ProcessLine(const char* line, bool sync, int* error) {
 // the PIPELIE 
 void Gint::Sort(std::string fname) {
 
+
+  GPipeline pipeline;
+  pipline.Sort(fname);
+}
+/*
   GFile infile(fname);
   infile.start();
 
@@ -313,7 +318,7 @@ void Gint::Sort(std::string fname) {
   GHistogramer::Get().Close();
 
 }
-
+*/
 
 
 

@@ -2,8 +2,11 @@
 #this will compile the current library.
 add_library(UNPACKER SHARED Unpacker.cxx)
 
-target_include_directories(GDETECTOR PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
-target_include_directories(GDETECTOR PUBLIC "${CMAKE_SOURCE_DIR}/include")
+target_include_directories(UNPACKER 
+  PUBLIC 
+    ${CMAKE_SOURCE_DIR}/include
+    ${ROOT_INCLUDE_DIRS}
+)
 
 #root_generate_dictionary(G__GTYPES 
 #  Gtypes.h 
@@ -20,7 +23,13 @@ target_include_directories(GDETECTOR PUBLIC "${CMAKE_SOURCE_DIR}/include")
 
 
 
-target_link_libraries(UNPACKER PUBLIC ROOT::Core GTYPES GDETECTOR GGRETINA)
+target_link_libraries(UNPACKER 
+  PUBLIC  
+    ROOT::Core 
+  PRIVATE 
+    GHISTOGRAM
+    GGRETINA
+)
 
 #link the compiled libraries above to the final executable.
 

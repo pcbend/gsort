@@ -1,10 +1,31 @@
 
 #this will compile the current library.
-add_library(Gint SHARED Gint.cxx GCommands.cxx)
+add_library(GINT SHARED 
+  Gint.cxx 
+  GCommands.cxx
+)
 
-root_generate_dictionary(G__Gint Gint.h Gtypes.h GCommands.h MODULE Gint LINKDEF Linkdef.h)
+target_include_directories(GINT
+  PRIVATE
+  ${CMAKE_SOURCE_DIR}/include
+  ${ROOT_INCLUDE_DIRS}
+) 
 
-target_link_libraries(Gint GFILE GCORE GHISTOGRAM UNPACKER ${ROOT_LIBRARIES})
+root_generate_dictionary(G__Gint 
+  Gint.h 
+  Gtypes.h 
+  GCommands.h 
+  MODULE GINT
+  LINKDEF Linkdef.h
+)
+
+target_link_libraries(GINT 
+  PUBLIC
+    ROOT::Core
+    ROOT::Rint
+  PRIVATE 
+  GPIPELINE
+)
 
 
 
