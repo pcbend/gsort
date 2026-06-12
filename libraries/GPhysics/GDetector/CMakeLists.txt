@@ -5,9 +5,10 @@ add_library(GDETECTOR SHARED
   GDetectorHit.cxx
 )
 
-target_include_directories(GDETECTOR PRIVATE 
-  ${CMAKE_SOURCE_DIR}/include
-  ${ROOT_INCLUDE_DIRS}
+target_include_directories(GDETECTOR
+  PUBLIC
+    ${CMAKE_SOURCE_DIR}/include
+    ${ROOT_INCLUDE_DIRS}
 ) 
 
 

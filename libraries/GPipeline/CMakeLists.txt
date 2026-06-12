@@ -13,10 +13,10 @@ target_link_libraries(GPIPELINE
   PUBLIC
     GFILE
     GTYPES
-    GHISTOGRAM
     GDETECTOR
     UNPACKER
   PRIVATE
+    GHISTOGRAM
     ROOT::Core
     ROOT::Tree
 )

@@ -25,6 +25,7 @@ target_include_directories(UNPACKER
 
 target_link_libraries(UNPACKER 
   PUBLIC  
+    GDETECTOR
     ROOT::Core 
   PRIVATE 
     GHISTOGRAM

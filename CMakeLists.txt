@@ -58,13 +58,14 @@ target_include_directories(gsort
 
 
 target_link_libraries(gsort 
-  GINT
-  GFILE
-  GDETECTOR
-  GTYPES
-  GHISTOGRAM
-  UNPACKER
-  ${ROOT_LIBRARIES}
+  PRIVATE
+    GINT
+  #GFILE
+  #GDETECTOR
+  #GTYPES
+  #GHISTOGRAM
+  #UNPACKER
+    ${ROOT_LIBRARIES}
 )        
 
 string(ASCII 27 Esc)
