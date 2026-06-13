@@ -1,6 +1,9 @@
 
 #this will compile the current library.
-add_library(UNPACKER SHARED Unpacker.cxx)
+add_library(UNPACKER SHARED 
+  Unpacker.cxx
+  GPhysicsThread.cxx
+)
 
 target_include_directories(UNPACKER 
   PUBLIC 

@@ -24,7 +24,8 @@ void GPipeline::Sort(const std::string& fname) {
   GEventBuilder<Rec> eventbuilder(infile);
   eventbuilder.start();
 
-  GPhysicsThread<Rec> physics(eventbuilder, infile.Info());
+  //GPhysicsThread<Rec> physics(eventbuilder, infile.Info());
+  GPhysicsThread physics(eventbuilder, infile.Info());
   physics.start();
 
   using DetVec = std::vector<std::unique_ptr<GDetector>>;

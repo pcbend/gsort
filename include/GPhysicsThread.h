@@ -5,28 +5,29 @@
 #include <GDetector.h>
 #include <Gtypes.h>
 
-#include <Unpacker.h>
 
+#include <memory>
 #include <vector>
 #include <cstdint>
-#include <thread>
-#include <chrono>
+//#include <thread>
+//#include <chrono>
 
-template<class In>
+//template<class In>
 class GPhysicsThread : public GThread<std::vector<std::unique_ptr<GDetector> > > {
   public:
-    using Event = std::vector<In>;
-    using Base  = GThread<std::vector<std::unique_ptr<GDetector> > >;
+    using Event  = std::vector<Rec>;
+    using Output = std::vector<std::unique_ptr<GDetector> >;
+    using Base   = GThread<Output>;
 
-    explicit GPhysicsThread(GThread<Event>& producer, const FileInfo &info) 
-      : fProducer(producer), fInfo(info) { }
+    explicit GPhysicsThread(GThread<Event>& producer, const FileInfo &info); 
+    //  : fProducer(producer), fInfo(info) { }
     //explicit GPhysicsThread(GThread<In>& producer) : fProducer(producer) { }
 
     ~GPhysicsThread() override = default;
 
     uint64_t count() const { return fEvents; }
 
-    void print() override {
+    void print() override; /* {
         const char* state = "STOPPED";
         if (this->IsRunning()) state = this->IsPaused() ? "PAUSED" : "RUNNING";
 
@@ -35,7 +36,7 @@ class GPhysicsThread : public GThread<std::vector<std::unique_ptr<GDetector> > >
         //          << " | AvgHits: " << avg
                   << " | OutQ: " << this->size()
                   << "\n";
-    }
+    }*/
 
 
 
@@ -44,7 +45,7 @@ class GPhysicsThread : public GThread<std::vector<std::unique_ptr<GDetector> > >
     const FileInfo &fInfo;
     uint64_t fEvents{0};
 
-    bool Iteration() override {
+    bool Iteration() override; /* {
       Event ev;
       if (!fProducer.pop(ev)) {
         if (!fProducer.IsRunning() && fProducer.empty()) {
@@ -65,7 +66,7 @@ class GPhysicsThread : public GThread<std::vector<std::unique_ptr<GDetector> > >
       dets.reserve(4);
       return true;
     }
-
+    */
 };
 
 
