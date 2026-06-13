@@ -23,8 +23,9 @@ target_link_libraries(GINT
   PUBLIC
     ROOT::Core
     ROOT::Rint
+    ROOT::RIO
   PRIVATE 
-  GPIPELINE
+    GPIPELINE
 )
 
 

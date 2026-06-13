@@ -17,6 +17,7 @@ target_link_libraries(GPIPELINE
     UNPACKER
   PRIVATE
     GHISTOGRAM
+    GGRETINA
     ROOT::Core
     ROOT::Tree
 )

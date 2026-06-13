@@ -18,6 +18,9 @@
 //#include <GPhysicsThread.h>
 //#include <GTTreeThread.h>
 
+#include <GPipeline.h>
+#include <GThread.h>
+
 #include <GDetector.h>
 #include <GHistogramer.h>
 
@@ -277,7 +280,7 @@ void Gint::Sort(std::string fname) {
 
 
   GPipeline pipeline;
-  pipline.Sort(fname);
+  pipeline.Sort(fname);
 }
 /*
   GFile infile(fname);

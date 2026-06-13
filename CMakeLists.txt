@@ -60,6 +60,7 @@ target_include_directories(gsort
 target_link_libraries(gsort 
   PRIVATE
     GINT
+    GCORE
   #GFILE
   #GDETECTOR
   #GTYPES
